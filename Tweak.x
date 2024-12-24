@@ -1,4 +1,3 @@
-#import <MobileCoreServices/MobileCoreServices.h>
 #import "SAMKeychain/AuthViewController.h"
 #import "Colours/Colours.h"
 #import "BHTManager.h"
@@ -44,8 +43,8 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 %hook T1AppDelegate
 - (_Bool)application:(UIApplication *)application didFinishLaunchingWithOptions:(id)arg2 {
     %orig;
-    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"FirstRun_4.3"]) {
-        [[NSUserDefaults standardUserDefaults] setValue:@"1strun" forKey:@"FirstRun_4.3"];
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"FirstRun_4.4"]) {
+        [[NSUserDefaults standardUserDefaults] setValue:@"1strun" forKey:@"FirstRun_4.4"];
         [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"dw_v"];
         [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"hide_promoted"];
         [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"voice"];
@@ -275,8 +274,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([BHTManager HidePromoted] && [tweet respondsToSelector:@selector(isPromoted)] && [tweet performSelector:@selector(isPromoted)]) {
         [_orig setHidden:YES];
     }
-    
-    
+
     if ([self.adDisplayLocation isEqualToString:@"PROFILE_TWEETS"]) {
         if ([BHTManager hideWhoToFollow]) {
             if ([class_name isEqualToString:@"T1URTTimelineUserItemViewModel"] || [class_name isEqualToString:@"T1TwitterSwift.URTTimelineCarouselViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleHeaderViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleFooterViewModel"]) {
@@ -334,6 +332,13 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 [_orig setHidden:true];
             }
         }
+    }
+    
+    // New Google Native Ads 
+    if ([BHTManager HidePromoted] && 
+        ([_orig isKindOfClass:NSClassFromString(@"T1TwitterSwift.GoogleNativeAdCell")] || 
+         [class_name isEqualToString:@"T1TwitterSwift.GoogleNativeAdCell"])) {
+        [_orig setHidden:YES];
     }
     
     return _orig;
@@ -404,6 +409,11 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 return 0;
             }
         }
+    }
+    
+    if ([BHTManager HidePromoted] && 
+        [class_name isEqualToString:@"T1TwitterSwift.GoogleNativeAdCell"]) {
+        return 0.0f;
     }
     
     return %orig;
