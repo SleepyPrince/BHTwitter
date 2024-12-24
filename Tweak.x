@@ -1351,4 +1351,3 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     }];
     %init;
 }
-
